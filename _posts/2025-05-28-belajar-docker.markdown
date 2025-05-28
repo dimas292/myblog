@@ -1,13 +1,12 @@
 ---
 layout: post
-title:  "Belajar Docker Dengan Study Case Todo-List"
+title:  "Belajar Setting Anti Pening With Docker "
 date:   2025-05-28 20:00:00 +0700
 categories: docker belajar
 ---
 
 _Oleh Dimas | 28 Mei 2025_
 
-## Belajar Setting Anti Pening With Docker 
 
 Hari ini saya ingin berbagi cerita tentang perjalanan saya dalam mempelajari Docker. Ini bukan sekadar belajar teori, tapi langsung saya praktikkan dalam sebuah studi kasus nyata: membangun aplikasi to-do list dengan frontend Vue.js dan backend Golang.
 

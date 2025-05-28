@@ -1,6 +1,6 @@
 # DEEMS BLOG
 
-Hai, saya Dimas — seorang mahasiswa Informatika yang saat ini sedang dalam perjalanan memahami kompleksitas dunia teknologi infrastruktur, terutama di ranah cloud computing, virtualization, dan orchestration.
+
 
 ## Installation
 
@@ -35,19 +35,10 @@ Hai, saya Dimas — seorang mahasiswa Informatika yang saat ini sedang dalam per
 
 3.  To deploy the blog, you can use GitHub Pages or any other web server.
 
-## Contributing
-
-1.  Fork the repository.
-2.  Create a new branch.
-3.  Make your changes.
-4.  Submit a pull request.
-
-## License
 
 This project is open source and available under the [MIT License](LICENSE).
 
 ## Author
 
 *   Dimas (dimasixc22@gmail.com)
-    [https://akunvsg.github.io](https://akunvsg.github.io)
     [https://github.com/dimasstudent](https://github.com/dimasstudent)

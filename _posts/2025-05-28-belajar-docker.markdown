@@ -5,7 +5,9 @@ date:   2025-05-28 20:00:00 +0700
 categories: docker belajar
 ---
 
----
+_Oleh Dimas | 28 Mei 2025_
+
+## Belajar Setting Anti Pening With Docker 
 
 Hari ini saya ingin berbagi cerita tentang perjalanan saya dalam mempelajari Docker. Ini bukan sekadar belajar teori, tapi langsung saya praktikkan dalam sebuah studi kasus nyata: membangun aplikasi to-do list dengan frontend Vue.js dan backend Golang.
 
@@ -19,4 +21,4 @@ Selanjutnya, saya membuat Docker Compose. Di sini saya memahami bahwa dengan Doc
 
 Sampai sini, inilah perjalanan saya hari ini dalam belajar Docker dengan studi kasus aplikasi to-do list. Rencananya, saya akan mencoba membuat hal serupa dengan Java, Maven, dan Spring Boot. Dan yang belum saya ulik masih banyak sekali, seperti deploy ke VPS/EC2, menggunakan Nginx reverse proxy, memasang SSL, mendaftarkan ke domain, scale up apps, concurrency, thread, message broker, dan masih banyak lagi.
 
-Kalian bisa komen dibawah yaa dengan akun github kalian 
+Kalian bisa komen dibawah yaa dengan akun github kalian ✨

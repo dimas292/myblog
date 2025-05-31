@@ -43,3 +43,7 @@ docker run --name mysql-container \
 
 ```
 
+Mungkin kalau kalian bingun apa yang guee lakukan diatas, ini bisa jadi gambaran
+
+![visualization](../images/net.png)
+

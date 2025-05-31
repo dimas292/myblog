@@ -1,5 +1,3 @@
-
-
 ---
 layout: post
 title: "Setup Mysql Database + Spring Boot"

@@ -1,112 +1,90 @@
 
 
 ---
-
-# Setup MySQL Database + Spring Boot dalam Docker
-
-**Oleh Dimas | 31 Mei 2025**
-
-Halo! Masih bersama gue, Dimas. Kali ini gue akan melanjutkan series belajar tentang containerisasi menggunakan Docker, dengan project sederhana: backend Spring Boot + database MySQL.
-
+layout: post
+title: "Setup Mysql Database + Spring Boot"
+date: 2025-05-31 12:00:00 +0700
+categories: docker belajar
 ---
 
-## 🧱 Persiapan Awal
+Oleh Dimas | 31 Mei 2025
 
-Sebelum kita mulai, pastikan kamu sudah menyiapkan:
+Hallo, masih dengan gue Dimas. Kali ini gue akan melanjutkan *series* belajar tentang *containerization* dan untuk *project*-nya menggunakan **Spring Boot** sebagai *backend*-nya + **MySQL** untuk *database*-nya.
 
-- Sebuah project Spring Boot (Java) sederhana
-- Maven sebagai build tool
-- Docker terinstall di komputer kamu
+### Persiapan dan Miskonsepsi Awal
 
-Project yang gue buat adalah aplikasi CRUD sederhana dengan dependensi berikut:
-- Spring Boot
-- Lombok
-- Spring Data JPA
-- MySQL Connector
+Yang harus dipersiapkan apa saja? *Backend* Java CRUD dengan *package* menggunakan Maven sederhana saja karena di sini belajarnya kan itu ya tentang *container*. Dari *project* Java ini, dependensi yang gue gunakan hanya Spring Boot, Lombok, Spring JPA, dan MySQL Connector.
 
-> ⚠️ Catatan: Pastikan kamu tidak menggantungkan diri pada IDE untuk test koneksi ke database — selalu uji di lingkungan Docker agar hasilnya akurat.
+Proses pembuatan *entity*, *controller* enggak gue tampilin ya, langsung aja gue tes di lokal apa aplikasinya bisa jalan apa enggak.
 
----
+Perintah buat *run* Java Spring Boot:
 
-## 🚀 Jalankan Aplikasi di Local (Development)
-
-Sebelum masuk ke Docker, pastikan aplikasi Spring Boot kamu bisa berjalan di lokal.
-
-### 1. Build aplikasi menggunakan Maven:
+*Compile* terlebih dahulu:
 
 ```bash
 mvn package
 ```
 
-### 2. Jalankan aplikasi:
+Lalu jalankan:
 
 ```bash
 mvn spring-boot:run
 ```
 
-Jika aplikasi berjalan lancar, lanjut ke langkah berikutnya.
+**Miskonsepsi 1: "Kalau aplikasi sudah jalan di lokal, berarti pasti aman di mana pun."**
+**Yang perlu digarisbawahi:** Enggak selalu! Berjalan di lokal dengan *setup* langsung di OS itu beda jauh sama kalau sudah masuk ke *container*. Di *container*, ada *environment* yang terisolasi dan itu bisa jadi sumber masalah baru kalau konfigurasi *network* atau *volume*-nya salah. Makanya, penting banget buat belajar *containerization* kayak gini.
 
----
+Setelah semua aman berjalan di lokal, gue lanjut *setting database* yak.
 
-## 🐳 Pull Image MySQL
+### Menjalankan MySQL di Docker
 
-Pertama, kita tarik image MySQL dari Docker Hub:
+Pertama-tama kita *pull images* MySQL dari Docker Hub. Di sini versi yang gue gunakan `mysql:8.0.33`.
 
 ```bash
 docker pull mysql:8.0.33
 ```
 
-Gue pilih versi `8.0.33` karena stabil dan banyak dipakai di lingkungan produksi.
-
----
-
-## 🔧 Jalankan Container MySQL
-
-Sekarang kita jalankan container MySQL dengan konfigurasi yang cukup lengkap:
+Berikut adalah cara menjalankan MySQL di Docker:
 
 ```bash
 docker run --name mysql-container \
-  -e MYSQL_ROOT_PASSWORD=root \
-  -e MYSQL_DATABASE=mydb \
-  -e MYSQL_USER=dimas \
-  -e MYSQL_PASSWORD=rahasia \
-  -v mysql_data:/var/lib/mysql \
-  -d \
-  -p 3306:3306 \
-  mysql:8.0.33
+-e MYSQL_ROOT_PASSWORD=root \
+-e MYSQL_DATABASE=mydb \
+-e MYSQL_USER=dimas \
+-e MYSQL_PASSWORD=rahasia \
+-v mysql_data:/var/lib/mysql \
+-d \
+-p 3306:3306 \
+mysql:8.0.33
 ```
 
-### Penjelasan:
-| Bagian | Fungsi |
-|--------|--------|
-| `-e` | Set environment variable seperti password, nama database, dll |
-| `-v` | Volume untuk menyimpan data secara persisten |
-| `-d` | Menjalankan container di background |
-| `-p` | Mapping port host ke container (misalnya `3306:3306`) |
+Terlihat agak rumit yak? Mari kita bahas dengan pengetahuan gue yang seadanya. Jadi intinya adalah kita membuat *container* dengan nama `mysql-container` dengan langsung *setting password*, *user*, dan *database*-nya. Untuk *flag* `-d` agar *container*-nya berjalan di latar belakang. Nah, kalau `-p` itu buat *publish port* atau kayak *binding port* gitulah, dan terakhir itu nama *image*-nya.
 
-> ✅ **Koreksi Konsep:**  
-Flag `-p` bukan hanya "binding port", tapi **meneruskan port dari container ke host**, sehingga bisa diakses dari luar.
-
----
-
-## 🔍 Akses MySQL dari Dalam Container
-
-Kalau kamu ingin akses CLI MySQL dari dalam container:
+*Container* MySQL sudah berjalan di latar belakang. Untuk mengakses *database*-nya bisa pakai `exec`, contohnya:
 
 ```bash
 docker exec -it <id-container> bash
-mysql -u dimas -p
 ```
 
----
+```bash
+~bash# mysql -u dimas -p
+~mysql>
+```
 
-## 📦 Buat Dockerfile untuk Spring Boot App
+Oiya, lupa! Kalau *error* saat menjalankan *container* MySQL, mungkin itu juga ada *port* dari lokal Anda yang sedang aktif.
 
-Setelah aplikasi jalan di lokal, saatnya membuat Docker image untuk aplikasi Spring Boot kamu.
+Lanjut, gue nyoba tes lagi di *project*-nya, namun *database* sekarang menggunakan *container*, dan *yapp* sukses!
 
-### Contoh `Dockerfile`:
+**Miskonsepsi 2: "Kalau sudah jalan pakai *container database*, berarti semuanya sudah terintegrasi otomatis."**
+**Yang perlu digarisbawahi:** Nanti dulu! Meskipun *database container* sudah jalan, belum tentu aplikasi Spring Boot-mu bisa langsung nyambung. Ini dia momen krusial tentang **Docker Network** yang bakal kita bahas. Tanpa *network* yang benar, aplikasi dan *database* bisa jadi kayak orang yang beda alam, enggak bisa ngobrol!
 
-```dockerfile
+Di tengah-tengah perjalanan gue kepikiran buat bikin *migration* dengan Flyway, tapi nanti malah enggak kelar-kelar *task* gue, jadi lanjut aja lah!
+
+### Membuat Dockerfile untuk Aplikasi Java
+
+Lanjut! Gue buat `Dockerfile` di *project* Java gue buat dijadikan *docker image* dengan konfigurasi seperti ini:
+
+```Dockerfile
 FROM openjdk:17-jdk-slim
 
 WORKDIR /app
@@ -118,100 +96,67 @@ EXPOSE 8080
 CMD [ "java", "-jar", "app.jar" ]
 ```
 
-### Penjelasan:
-| Baris | Fungsi |
-|-------|--------|
-| `FROM` | Base image Java yang digunakan |
-| `WORKDIR` | Working directory di dalam container |
-| `COPY` | Salin file `.jar` hasil build |
-| `EXPOSE` | Beri tahu bahwa aplikasi akan listen di port 8080 |
-| `CMD` | Perintah untuk menjalankan aplikasi |
+Sengaja gue ambil yang `openjdk-slim` supaya *size*-nya kecil, gue pakai paket data coy, takutnya boncos. Untuk `WORKDIR` itu ketika kita masuk ke *container* diarahkan langsung ke `/app`. `COPY` arahkan ke `target` hasil *compile*-nya, argumen kedua diisi nama hasil *compile*. `EXPOSE` *port* yang bakalan kita pakai. `CMD` untuk menjalankan *script* `-jar` untuk menjalankan *file jar*.
 
-> ✅ **Tips:** Kalau kamu pakai `openjdk:17-jdk-slim`, itu bagus untuk ukuran image yang kecil. Tapi kalau kamu ingin lebih ringkas lagi, gunakan `jre` bukan `jdk`.
+Setelah jadi *image*, gue coba *run* dengan... eh, taunya *error*! Karena koneksi belum dibuat atau biasa disebut **Docker Network**.
 
----
+**Miskonsepsi 3: "Kalau sudah bikin *image* dan *container* jalan, aplikasi langsung bisa komunikasi sama *container* lain."**
+**Yang perlu digarisbawahi:** Enggak semudah itu, Ferguso! Setiap *container* itu secara *default* punya *network* isolasi sendiri. Kalau mau mereka bisa "ngobrol" satu sama lain (misalnya, aplikasi Spring Boot-mu mau nyambung ke *database* MySQL), kamu perlu **membuat Docker Network khusus** dan memasukkan kedua *container* itu ke *network* yang sama. Ini *step* yang sering banget dilupakan *developer* pemula.
 
-## 🔌 Docker Network: Kenapa Penting?
+### Solusi: Docker Network
 
-Setelah semua siap, saatnya build dan jalankan aplikasi Spring Boot sebagai container.
-
-Tapiii… ❗❗ Saat pertama kali gue coba, muncul error koneksi ke database. Ini karena **container backend dan container MySQL belum satu network**.
-
-### Solusi: Buat network baru:
+Oke, kita buat *network*-nya terlebih dahulu seperti ini:
 
 ```bash
 docker network create app-network
 ```
 
-Lalu, jalankan ulang container MySQL dengan flag `--network`:
+Setelah itu, jalankan ulang MySQL *service* dengan tambahan *flag* `--network <nama-network>` seperti ini:
 
 ```bash
 docker run --name mysql-container \
-  -e MYSQL_ROOT_PASSWORD=root \
-  -e MYSQL_DATABASE=mydb \
-  -e MYSQL_USER=dimas \
-  -e MYSQL_PASSWORD=rahasia \
-  -v mysql_data:/var/lib/mysql \
-  -d \
-  -p 3306:3306 \
-  --network app-network \
-  mysql:8.0.33
+-e MYSQL_ROOT_PASSWORD=root \
+-e MYSQL_DATABASE=mydb \
+-e MYSQL_USER=dimas \
+-e MYSQL_PASSWORD=rahasia \
+-v mysql_data:/var/lib/mysql \
+-d \
+-p 3306:3306 \
+--network app-network \
+mysql:8.0.33
 ```
 
-> ✅ **Konsep Penting:**  
-Container di Docker harus berada di **network yang sama** untuk saling kenal lewat hostname. Tanpa ini, `localhost` di dalam container = dirinya sendiri, bukan host atau container lain.
+Sekarang sudah satu *network* yang terisolasi. Jadi *env* Spring Boot-nya sudah bisa akses *container* MySQL dengan *config* seperti ini:
 
----
-
-## 📥 Jalankan Backend Spring Boot di Docker
-
-Setelah build image aplikasi kamu:
-
-```bash
-docker build -t dimasstudent/backend-java:v1 .
-```
-
-Jalankan container backend dengan command:
-
-```bash
-docker run -d \
-  --name backend-crud \
-  -p 8080:8080 \
-  --network app-network \
-  dimasstudent/backend-java:v1
-```
-
-> ⚠️ **Konsep Salah:**  
-Awalnya gue pikir setelah bikin network, langsung bisa konek. Padahal container backend harus punya konfigurasi yang benar agar bisa konek ke container MySQL.
-
----
-
-## 🛠️ Konfigurasi Spring Boot untuk Docker
-
-Agar aplikasi Spring Boot bisa konek ke MySQL yang berjalan di container, ubah konfigurasi berikut di `application.properties` atau `application.yml`:
-
-```properties
+```java
+# Database connection
 spring.datasource.url=jdbc:mysql://mysql:3306/mydb?allowPublicKeyRetrieval=true&useSSL=false
 spring.datasource.username=dimas
 spring.datasource.password=rahasia
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
+# JPA/Hibernate properties
 spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 ```
+**Yang perlu digarisbawahi:** Perhatikan *host* di `spring.datasource.url`! Tadinya mungkin `localhost` atau `127.0.0.1`, tapi kalau sudah pakai Docker Network, kita panggil *container* MySQL dengan **nama *service* atau nama *container*-nya** (dalam kasus ini, `mysql` atau `mysql-container` jika tidak menggunakan *docker-compose*). Ini krusial banget agar aplikasi bisa menemukan *database*-nya di *network* Docker.
 
-> ⚠️ **Catatan Penting:**  
-Hostname `mysql` hanya dikenali jika container backend dan MySQL berada di **network yang sama**. Jika kamu jalankan aplikasi dari lokal, ganti `mysql` menjadi `localhost`.
+### Finalisasi dengan Docker Compose
 
----
+Setelah semuanya aman, gue *push image*-nya ke Docker Hub dengan *best practice*-nya seperti berikut:
 
-## 📁 Gunakan Docker Compose (Opsional tapi Direkomendasikan)
+```bash
+docker push dimasstudent/backend-java:v1
+```
+**Yang perlu digarisbawahi:** Format *push* ke Docker Hub itu penting. Biasanya pakai `docker push <username_docker_hub>/<nama_image>:<tag>`. Jadi pastikan `backend-java` itu nama *image* lo, dan `dimasstudent` itu *username* Docker Hub lo. Kalau `tag backend-java` itu buat bikin *tag* lokal, tapi *push*-nya harus spesifik ke *repo* di Docker Hub.
 
-Agar lebih mudah, gue akhirnya beralih ke `docker-compose`. Ini file `docker-compose.yml` yang gue gunakan:
+Setelah terdaftar di Docker Hub, tinggal kita panggil di Docker Compose.
+
+Ini *config* Docker Compose saya:
 
 ```yaml
-version: '3'
+version: '3.8' # Lebih baik pakai versi terbaru, misalnya '3.8' atau '3.9'
 services:
   mysql:
     image: mysql:8.0.33
@@ -224,80 +169,36 @@ services:
       MYSQL_USER: dimas
       MYSQL_PASSWORD: rahasia
     volumes:
-      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql_data:/var/lib/mysql # Menggunakan named volume, lebih baik untuk persistensi data
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql # Opsional, untuk inisialisasi database
+    networks:
+      - app-network # Memasukkan ke network yang sama
 
   backend-crud:
-    image: dimasstudent/backend-java:v1
-    container_name: backend-crud
+    image: dimasstudent/backend-java:v1 # Pastikan tag yang dipush sesuai
+    container_name: backend-crud # Beri nama container agar lebih mudah diidentifikasi
     ports:
       - "8080:8080"
     depends_on:
       - mysql
-    restart: on-failure:5
+    environment: # Penting: Pastikan environment variables untuk koneksi DB ada di sini juga
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mydb?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: dimas
+      SPRING_DATASOURCE_PASSWORD: rahasia
+    networks:
+      - app-network # Memasukkan ke network yang sama
+
+networks: # Mendefinisikan network
+  app-network:
+    driver: bridge
+
+volumes: # Mendefinisikan named volume
+  mysql_data:
 ```
 
-> ✅ **Penjelasan Tambahan:**  
-Meskipun `depends_on` membuat service backend menunggu MySQL di-start, **tidak menjamin MySQL sudah siap menerima koneksi**. Untuk memastikannya, kamu bisa tambahkan script `entrypoint` untuk delay atau retry logic.
+**Miskonsepsi 4: "Kalau sudah pakai Docker Compose, `docker network create` tidak perlu lagi."**
+**Yang perlu digarisbawahi:** Betul! Kalau sudah pakai Docker Compose dan kamu mendefinisikan *network* di dalam `docker-compose.yaml` (seperti contoh di atas pada bagian `networks:` di bawah `services:`), Docker Compose akan **otomatis membuat *network*** itu untukmu saat kamu menjalankan `docker-compose up`. Jadi, kamu enggak perlu lagi *run* `docker network create` secara manual. Ini salah satu keunggulan Docker Compose, menyederhanakan orkestrasi *container*.
 
----
+Semua *task* hari ini selesai, kelihatan cukup mudah dan lancar jaya padahal mah enggak! Banyak banget *trial and error* yang enggak gue tulis di sini. Tapi, dari situlah kita belajar, kan?
 
-## 🚀 Push ke Docker Hub (Opsional)
-
-Kalau kamu ingin push image ke Docker Hub:
-
-```bash
-docker tag backend-java dimasstudent/backend-java:v1
-docker push dimasstudent/backend-java:v1
-```
-
----
-
-## ✅ Kesimpulan
-
-Langkah-langkah yang gue lakukan hari ini:
-
-1. Jalankan aplikasi Spring Boot di lokal
-2. Tarik dan jalankan MySQL container
-3. Buat Dockerfile untuk Spring Boot
-4. Jalankan container Spring Boot dengan Docker
-5. Atasi masalah koneksi dengan Docker network
-6. Sederhanakan setup dengan `docker-compose.yml`
-7. Push image ke Docker Hub (opsional)
-
----
-
-## 💡 Tips Tambahan
-
-- **Gunakan profil (`dev`, `docker`) untuk bedakan konfigurasi lokal vs Docker**
-- **Jangan gunakan `localhost` sebagai hostname di Docker**, gunakan nama service sesuai `docker-compose.yml`
-- **Tambahkan retry logic** di entrypoint container agar backend menunggu MySQL siap
-
----
-
-## 📝 Koreksi & Saran Penulisan
-
-Beberapa kalimat di blog asli bisa diperbaiki agar lebih profesional dan mudah dipahami. Contoh:
-
-> ❌ *"guee nyoba test lagi di projectnya namun database sekarang menggunakn container dan yapp success"*  
-> ✅ *"Setelah mengganti database menjadi container, gue coba jalankan aplikasi dan ternyata berhasil."*
-
-> ❌ *"guee kepikiran buat bikin migration dengan flyway tpi nnti malah gak kelar-kelar task guee jadi lanjut aja lahhh"*  
-> ✅ *"Di tengah proses, gue sempat terpikir untuk menambahkan migrasi menggunakan Flyway, tapi gue skip dulu supaya fokus pada containerisasi."*
-
----
-
-## 🎉 Penutup
-
-Setup Spring Boot + MySQL dalam Docker bisa terasa rumit di awal, apalagi kalau baru belajar Docker. Tapi dengan pemahaman dasar tentang Docker network dan konfigurasi koneksi, semuanya bisa berjalan lancar.
-
-> Jika kamu ingin, gue bisa bantu bikinkan template repository GitHub beserta Dockerfile, docker-compose, dan contoh migrasi dengan Flyway 😊
-
----
-
-## 🔖 Tags
-
-`Docker`, `Spring Boot`, `MySQL`, `Containerization`, `Belajar Docker`, `Backend Development`
-
---- 
-
-Kalau kamu mau saya bantu buatkan halaman web atau PDF dari blog ini, tinggal kasih tahu aja ya 😄
+Gimana, ada *error* lain yang lo temuin pas *setup* kayak gini? Share di kolom komentar ya!

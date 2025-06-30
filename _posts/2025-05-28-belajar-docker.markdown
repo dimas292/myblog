@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Belajar Setting Anti Pening With Docker "
+title:  "Belajar Docker "
 date:   2025-05-28 20:00:00 +0700
 categories: virtualization
 ---

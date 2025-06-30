@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Setup Mysql Database + Spring Boot ( Dikoreksi AI )"
+title: "Setup Mysql Database + Spring Boot"
 date: 2025-05-31 12:00:00 +0700
 categories: virtualization
 ---
